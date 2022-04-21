@@ -1,11 +1,7 @@
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.callback_data import CallbackData
-import aiogram.utils.markdown as fmt
-from bs4 import BeautifulSoup
-from parsers import checkACMP
-from random import randint
-import requests
+import parser_Informatics
 import traceback
 
 bot = Bot(token="5144779060:AAGbUSrMa7nFVifzbXR7v97bfdWUOm7v-0I")
@@ -21,7 +17,7 @@ async def cmd_test1(message: types.Message):
     keyboard = types.InlineKeyboardMarkup()
     buttons = [types.InlineKeyboardButton(text="Проверить", callback_data=Menu.new(act='check', by_id=0)),
                types.InlineKeyboardButton(text="Задача по номеру", callback_data=Menu.new(act='task', by_id=1)),
-               types.InlineKeyboardButton(text="Рандомная номеру", callback_data=Menu.new(act='task', by_id=0))]
+               types.InlineKeyboardButton(text="Рандомная задача", callback_data=Menu.new(act='task', by_id=0))]
     keyboard.add(*buttons)
 
     await message.answer("Меню", reply_markup=keyboard)
@@ -47,14 +43,9 @@ async def send_random_value(call: types.CallbackQuery, callback_data: dict):
     varls['mes'] = []
 
     if not int(callback_data['by_id']):
-        varls['id'] = randint(1, 1000)
-    response = requests.get(f'https://acmp.ru/index.asp?main=task&id_task={varls["id"]}')
-    response.encoding = 'cp1251'
-    soup = BeautifulSoup(response.text, 'lxml')
-    task_text = soup.find_all('p', class_='text')
-    head = ' ' * 10 + soup.find_all('h1')[0].text
-    head = fmt.quote_html(head + '   ' + soup.find_all('i')[0].text + '\n')
-    text = head + '<i>' + fmt.quote_html(''.join([t.text for t in task_text])) + '</i>'
+        varls['id'] = None
+
+    text = parser_Informatics.get_task(varls["id"])
     varls['mes'].append((await call.message.answer(text, parse_mode="html")).message_id)
     await call.answer()
 
@@ -69,7 +60,7 @@ async def send_random_value(call: types.CallbackQuery):
         return 0
 
     await call.answer('Идёт проверка...')
-    await call.message.answer('Результат: ' + checkACMP(varls['id'], varls['code']))
+    await call.message.answer('Результат: ' + parser_Informatics.check_task(varls['id'], varls['code']))
 
 
 @dp.message_handler(content_types=["text"])
@@ -83,4 +74,3 @@ async def cmd_test1(message: types.Message):
 print('Start')
 if __name__ == "__main__":
     executor.start_polling(dp)
-

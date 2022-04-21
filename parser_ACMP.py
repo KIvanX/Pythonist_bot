@@ -1,4 +1,6 @@
-﻿
+﻿import aiogram.utils.markdown as fmt
+import requests
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
@@ -27,7 +29,7 @@ button = driver.find_element(By.CLASS_NAME, value='button')
 button.send_keys(Keys.ENTER)
 
 
-def checkACMP(task_id, code):
+def check_task(task_id, code):
     driver.get(f'https://acmp.ru/index.asp?main=status&id_t={task_id}&id_mem=397031')
     last_res = (driver.find_element(By.CLASS_NAME, value='main').text.split('\n') + [''])[1]
 
@@ -51,3 +53,14 @@ def checkACMP(task_id, code):
             if res[6] not in ['Waiting', 'Running', 'Compiling']:
                 return ' '.join(res[6:res.index('')])
         sleep(1)
+
+
+def get_task(task_id):
+    response = requests.get(f'https://acmp.ru/index.asp?main=task&id_task={task_id}')
+    response.encoding = 'cp1251'
+    soup = BeautifulSoup(response.text, 'lxml')
+    task_text = soup.find_all('p', class_='text')
+    head = ' ' * 10 + soup.find_all('h1')[0].text
+    head = fmt.quote_html(head + '   ' + soup.find_all('i')[0].text + '\n')
+    text = head + '<i>' + fmt.quote_html(''.join([t.text for t in task_text])) + '</i>'
+    return text
