@@ -4,15 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils import executor
 from typing import Dict
-from temp import parser_ACMP
 from metod import *
 import traceback
 import random
 import signal
 import pickle
 
-with open('token.key') as f:
-    bot = Bot(token=f.read())
+bot = Bot(token='5144779060:AAGbUSrMa7nFVifzbXR7v97bfdWUOm7v-0I')
 cb = CallbackData("prefics", "act", "p")
 dp = Dispatcher(bot)
 
@@ -26,6 +24,7 @@ users, tasks, lessons = load_all()
 def handler_stop_signals(_, __):
     with open('Pythonist_database.pkl', 'wb') as f:
         pickle.dump([users, tasks, lessons], f)
+    print('Сохранено')
 
 
 # УДАЛЕНИЕ СТАРОГО СООБЩЕНИЯ
@@ -175,6 +174,8 @@ async def func_check(call: types.CallbackQuery, callback_data: dict):
         return 0
 
     await call.answer('Идёт проверка...')
+
+    from temp import parser_ACMP
     link = tasks[int(callback_data['p'])].link
     res = parser_ACMP.check_task(int(link[link.rfind('=') + 1:]))
 
