@@ -1,0 +1,25 @@
+
+def main():
+    input_file = open("input.txt", "r")
+    output_file = open("output.txt", "w")
+    line = input_file.readline().split()
+    n = int(line[0])
+    a = []
+    line = input_file.readline().split()
+    for i in range(n):
+        a.append(int(line[i]))
+    a.sort()
+    
+    count = 0
+    for i in range(n // 2 + 1):
+        count += a[i] // 2 + 1
+    print(count)
+ 
+    output_file.write(str(count) + "\n")
+ 
+    input_file.close()
+    output_file.close()
+ 
+ 
+if __name__ == "__main__":
+    main()

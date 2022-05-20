@@ -148,7 +148,7 @@ async def func_result(call: types.CallbackQuery):
     response = requests.get(task.answer)
     response.encoding = 'utf-8'
 
-    with open('temp/answer.txt', 'w', encoding='utf-8') as f:
+    with open('temp/code.txt', 'w', encoding='utf-8') as f:
         f.write(response.text[response.text.find('\ndef '):])
 
     keyboard = types.InlineKeyboardMarkup()
@@ -158,7 +158,7 @@ async def func_result(call: types.CallbackQuery):
                    types.InlineKeyboardButton(text="➡️ Дальше", callback_data=cb.new(act='result', p=''))])
 
     await del_message(user.dlt, call.message.chat.id)
-    with open('temp/answer.txt', 'rb') as f:
+    with open('temp/code.txt', 'rb') as f:
         user.dlt = (await bot.send_document(call.message.chat.id,
                                             document=f,
                                             caption=f'Что вернёт эта программа на следущие данные:\n'
@@ -172,10 +172,6 @@ async def func_check(call: types.CallbackQuery, callback_data: dict):
     user = users[call.message.chat.id]
     if user.varls.get('code') is None:
         await call.answer('Пришли решение задачи текстом или файлом')
-        return 0
-
-    if user.varls.get('code') is None:
-        await call.answer('Ты уже посмотрел решение')
         return 0
 
     await call.answer('Идёт проверка...')
@@ -288,10 +284,10 @@ async def func_answer(call: types.CallbackQuery, callback_data: dict):
     response = requests.get(tasks[int(callback_data['p'])].answer)
     response.encoding = 'utf-8'
 
-    with open('temp/code.txt', 'w', encoding='utf-8') as f:
+    with open('temp/answer.txt', 'w', encoding='utf-8') as f:
         f.write(response.text)
 
-    with open('temp/code.txt', 'rb') as f:
+    with open('temp/answer.txt', 'rb') as f:
         await bot.send_document(call.message.chat.id, document=f,
                                 caption=f'Решение задачи "{tasks[int(callback_data["p"])].name}"')
     await call.answer()
