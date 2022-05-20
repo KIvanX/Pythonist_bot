@@ -35,7 +35,7 @@ def check_task(task_id):
     last_res = (driver.find_element(By.CLASS_NAME, value='main').text.split('\n') + [''])[1]
 
     driver.get(f'https://acmp.ru/index.asp?main=task&id_task={task_id}')
-    driver.find_element(By.NAME, "fname").send_keys(os.getcwd() + "/input.py")
+    driver.find_element(By.NAME, "fname").send_keys(os.getcwd() + "/temp/input.py")
     driver.find_element(By.CLASS_NAME, value='button').click()
 
     while True:

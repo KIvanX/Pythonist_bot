@@ -288,10 +288,10 @@ async def func_answer(call: types.CallbackQuery, callback_data: dict):
     response = requests.get(tasks[int(callback_data['p'])].answer)
     response.encoding = 'utf-8'
 
-    with open('temp/answer.txt', 'w', encoding='utf-8') as f:
+    with open('temp/code.txt', 'w', encoding='utf-8') as f:
         f.write(response.text)
 
-    with open('temp/answer.txt', 'rb') as f:
+    with open('temp/code.txt', 'rb') as f:
         await bot.send_document(call.message.chat.id, document=f,
                                 caption=f'Решение задачи "{tasks[int(callback_data["p"])].name}"')
     await call.answer()
