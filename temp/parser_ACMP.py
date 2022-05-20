@@ -7,14 +7,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
+import metod
 
-
-print('Authorization...')
+print('Authorization in ACMP...')
 
 caps = DesiredCapabilities().CHROME
 caps["pageLoadStrategy"] = "eager"
 options = webdriver.ChromeOptions()
-# options.add_argument("--headless")
+options.add_argument("--headless")
 driver = webdriver.Chrome(desired_capabilities=caps, options=options)
 driver.get('https://acmp.ru')
 
@@ -87,3 +87,20 @@ def get_ans_task(task_id):
         return None
 
     return f'https://raw.githubusercontent.com/AngelinaKhilman/algorithms/master/{ansrs[task_id]}'
+
+
+def ACMP_Data_Generator(a, b):
+    tasks = []
+    for i in range(a, b+1):
+        try:
+            name, link, text, exemples, level, image, answer = get_task(i)
+            tasks.append(metod.Task(name, link, text, exemples, level, answer))
+            print(i, tasks[-1])
+        except Exception as e:
+            print(e)
+
+    with open('../Pythonist_database.pkl', 'rb') as f:
+        d1, tasks_old, d2 = pickle.load(f)
+
+    with open('../Pythonist_database.pkl', 'wb') as f:
+        pickle.dump([d1, tasks_old + tasks, d2], f)

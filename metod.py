@@ -1,68 +1,48 @@
 ﻿import pickle
-# import parser_ACMP
-# import parser_Informatics
-# import parser_Codeforces
 
 
 class User:
     def __init__(self, user_id):
         self.user_id = user_id
+        self.admin = False
         self.level = None
-        self.maked = []
-        self.dlt = []
+        self.saw_ans = []
+        self.dlt = None
         self.varls = {}
+
+    def __str__(self):
+        return str(self.__dict__)
 
 
 class Task:
-    def __init__(self, name, link, text, exemples, level, image=None, answer=None):
+    def __init__(self, name, text, exemples, level, link=None, answer=None):
         self.name = name
-        self.link = link
-        self.exemples = exemples
         self.text = text
+        self.exemples = exemples
         self.level = level
-        self.image = image
+        self.link = link
         self.answer = answer
 
     def __str__(self):
         return str(self.__dict__)
 
-    def check(self):
-        if 'acmp.ru' in self.link:
-            return 'acmp'
-            # return parser_ACMP.check_task(self.link)
 
-        if 'informatics.msk.ru' in self.link:
-            return 'informatics'
-            # return parser_Informatics.check_task(self.link)
+class Lesson:
+    def __init__(self, name, about, text):
+        self.name = name
+        self.about = about
+        self.text = text
 
-        if 'codeforces.com' in self.link:
-            return 'codeforces'
-            # return parser_Codeforces.check_task(self.link)
+    def __str__(self):
+        return str(self.__dict__)
 
+    def __len__(self):
+        return len(self.text.split('\n')) // 30
 
-# def Data_Generator():
-#     tasks = []
-#     for i in range(101, 1001):
-#         try:
-#             name, link, text, exemples, level, image, answer = parser_ACMP.get_task(i)
-#             tasks.append(Task(name, link, text, exemples, level, image, answer))
-#             print(i, tasks[-1])
-#         except Exception as e:
-#             print(e)
-#
-#     with open('Pythonist_database.pkl', 'rb') as f:
-#         _, tasks_old = pickle.load(f)
-#
-#     with open('Pythonist_database.pkl', 'wb') as f:
-#         pickle.dump([{}, tasks_old + tasks], f)
+    def page(self, k):
+        return '\n'.join(self.text.split('\n')[k * 30: k * 30 + 30])
 
 
 def load_all():
     with open('Pythonist_database.pkl', 'rb') as f:
         return pickle.load(f)
-
-# Data_Generator()
-
-
-# for t in tasks:
-#     print(t)
