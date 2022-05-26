@@ -327,6 +327,12 @@ async def func_document(message: types.Message):
         with open('temp/input.py', 'wb') as f:
             f.write(text)
 
+    if user.varls.get('location') == 'lessons':
+        user.varls['lesson'] = message.document.file_name[:-4]
+        text = (await bot.download_file((await bot.get_file(message.document.file_id)).file_path)).read()
+        with open('temp/lesson.txt', 'wb') as f:
+            f.write(text)
+
     if user.varls.get('location') == 'result':
         user.varls['text'] = message.text
 

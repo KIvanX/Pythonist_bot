@@ -37,10 +37,10 @@ class Lesson:
         return str(self.__dict__)
 
     def __len__(self):
-        return len(self.text.split('\n')) // 30
+        return (len(self.text.split('\n'))-1) // 20
 
     def page(self, k):
-        return '\n'.join(self.text.split('\n')[k * 30: k * 30 + 30])
+        return '\n'.join(self.text.split('\n')[k * 20: k * 20 + 20])
 
 
 def load_all():
