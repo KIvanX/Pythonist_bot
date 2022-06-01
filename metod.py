@@ -31,6 +31,15 @@ class Lesson:
     def __init__(self, name, about, text):
         self.name = name
         self.about = about
+
+        k = 0
+        for i in range(len(text)):
+            k += 1
+            if k > 30 and text[i] == ' ':
+                text = text[:i] + '\n' + text[i+1:]
+            if text[i] == '\n':
+                k = 0
+
         self.text = text
 
     def __str__(self):

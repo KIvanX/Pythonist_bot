@@ -76,8 +76,8 @@ async def func_menu(call: types.CallbackQuery):
     keyboard = types.InlineKeyboardMarkup()
     but = [types.InlineKeyboardButton(text='📝 Решение задач', callback_data=cb.new(act='task', p='')),
            types.InlineKeyboardButton(text='🔎 Что выведет программа', callback_data=cb.new(act='result', p='')),
-           types.InlineKeyboardButton(text='📚 Уроки по темам', callback_data=cb.new(act='lessons', p='topic')),
-           types.InlineKeyboardButton(text='📜 Уроки по библиотекам', callback_data=cb.new(act='lessons', p='lib'))]
+           types.InlineKeyboardButton(text='📚 Уроки по темам', callback_data=cb.new(act='lessons', p='topic 0')),
+           types.InlineKeyboardButton(text='📜 Уроки по библиотекам', callback_data=cb.new(act='lessons', p='lib 0'))]
     for b in but:
         keyboard.row(b)
 
@@ -142,9 +142,12 @@ async def func_result(call: types.CallbackQuery):
     user = users[call.message.chat.id]
     user.varls['location'] = 'result'
 
+    if user.level == 4:
+        await call.message.answer('Для Гуру этот раздел закрыт')
+        return 0
+
     ind = random.choice([i for i, t in enumerate(tasks) if t.level == user.level and t.answer is not None])
-    task = tasks[ind]
-    response = requests.get(task.answer)
+    response = requests.get(tasks[ind].answer)
     response.encoding = 'utf-8'
 
     with open('temp/code.txt', 'w', encoding='utf-8') as f:
@@ -161,7 +164,7 @@ async def func_result(call: types.CallbackQuery):
         user.dlt = (await bot.send_document(call.message.chat.id,
                                             document=f,
                                             caption=f'Что вернёт эта программа на следущие данные:\n'
-                                                    f'{task.exemples[0][0]}',
+                                                    f'{tasks[ind].exemples[0][0]}',
                                             reply_markup=keyboard)).message_id
 
 
@@ -178,30 +181,42 @@ async def func_check(call: types.CallbackQuery, callback_data: dict):
     from temp import parser_ACMP
     link = tasks[int(callback_data['p'])].link
     res = parser_ACMP.check_task(int(link[link.rfind('=') + 1:]))
-
-    await call.message.answer(f'Результат: {res}')
+    if res == 'Accepted':
+        await call.message.answer(f'Твоя программа прошла все тесты! 🎉🎉🎉')
+    else:
+        await call.message.answer(f'Статус: {res}')
 
 
 # СПИСОК ЛЕКЦИЙ
 @dp.callback_query_handler(cb.filter(act='lessons'))
 async def func_lessons(call: types.CallbackQuery, callback_data: dict):
-    les_about = callback_data['p']
+    les_about, page = callback_data['p'].split()
+    page = int(page)
     user = users[call.message.chat.id]
     user.varls['location'] = 'lessons'
     les_inds = [key for key in lessons.keys() if lessons[key].about == les_about]
     keyboard = types.InlineKeyboardMarkup()
-    for key in les_inds:
+    for key in les_inds[page * 5: min(page * 5 + 5, len(les_inds))]:
         keyboard.row(types.InlineKeyboardButton(text=lessons[key].name, callback_data=cb.new(act='lesson',
                                                                                              p=str(key) + ' 0')))
+    but = []
+    if page > 0:
+        but.append(types.InlineKeyboardButton(text='⬅️',
+                                              callback_data=cb.new(act='lessons', p=f'{les_about} {page - 1}')))
+    if page < len(les_inds) // 5:
+        but.append(types.InlineKeyboardButton(text='➡️',
+                                              callback_data=cb.new(act='lessons', p=f'{les_about} {page + 1}')))
+    keyboard.row(*but)
+
     but = [types.InlineKeyboardButton(text='🔢 Меню', callback_data=cb.new(act='menu', p='')),
            types.InlineKeyboardButton(text='🆕 Добавить', callback_data=cb.new(act='add_les', p=les_about))]
     if not user.admin:
-        but.pop(0)
+        but.pop()
     keyboard.add(*but)
 
     await del_message(user.dlt, call.message.chat.id)
-    by = 'по теме' if les_about == 'topic' else 'по библиотеке'
-    user.dlt = (await call.message.answer('Выбери лекцию ' + by, reply_markup=keyboard)).message_id
+    by = 'по теме:' if les_about == 'topic' else 'по библиотеке:'
+    user.dlt = (await call.message.answer('📖 Выбери урок ' + by, reply_markup=keyboard)).message_id
 
 
 # ДОБАВИТЬ ЛЕКЦИЮ
@@ -219,7 +234,7 @@ async def func_add_les(call: types.CallbackQuery, callback_data: dict):
         lessons[key] = Lesson(user.varls['lesson'], callback_data['p'], f.read())
 
     await call.answer('✅ Лекция добавлена')
-    await func_lessons(call, callback_data)
+    await func_lessons(call, {'p': callback_data['p'] + ' 0'})
 
 
 # УДАЛИТЬ ЛЕКЦИЮ
@@ -248,11 +263,11 @@ async def func_lesson(call: types.CallbackQuery, callback_data: dict):
                                               callback_data=cb.new(act='lesson', p=f'{ind} {page + 1}')))
     keyboard.row(*but)
 
-    but = [types.InlineKeyboardButton(text='🔙 Назад', callback_data=cb.new(act='lessons', p=lessons[ind].about)),
+    but = [types.InlineKeyboardButton(text='🔙 Назад', callback_data=cb.new(act='lessons', p=lessons[ind].about + ' 0')),
            types.InlineKeyboardButton(text='❌ Удалить', callback_data=cb.new(act='del_les', p=ind))]
 
     if not user.admin:
-        but.pop(0)
+        but.pop()
 
     keyboard.add(*but)
 
@@ -271,9 +286,10 @@ async def func_checkRes(call: types.CallbackQuery, callback_data: dict):
     task = tasks[int(callback_data['p'])]
 
     if task.exemples[0][1] == user.varls.get('text'):
-        await call.message.answer('Это правильный ответ!')
+        await call.message.answer('Это правильный ответ! 🎉🎉🎉')
     else:
         await call.message.answer('Программа вернёт что-то другое')
+    await call.answer()
 
 
 # ВЫВОД РЕШЕНИЯ ЗАДАЧИ
