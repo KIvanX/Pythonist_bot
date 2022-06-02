@@ -6,11 +6,12 @@ from aiogram.utils import executor
 from typing import Dict
 from metod import *
 import traceback
+import token
 import random
 import signal
 import pickle
 
-bot = Bot(token='5144779060:AAGbUSrMa7nFVifzbXR7v97bfdWUOm7v-0I')
+bot = Bot(token.token)
 cb = CallbackData("prefics", "act", "p")
 dp = Dispatcher(bot)
 
