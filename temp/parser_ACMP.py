@@ -14,8 +14,7 @@ caps = DesiredCapabilities().CHROME
 caps["pageLoadStrategy"] = "eager"
 options = webdriver.ChromeOptions()
 options.add_argument("--headless")
-driver = webdriver.Chrome('/home/kivan/PycharmProjects/Pythonist_bot/chromedriver',
-                          options=options, desired_capabilities=caps)
+driver = webdriver.Chrome(options=options, desired_capabilities=caps)
 driver.get('https://acmp.ru')
 
 login = driver.find_element(By.NAME, value='lgn')
