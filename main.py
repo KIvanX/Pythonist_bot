@@ -3,7 +3,7 @@ from aiogram import types
 from aiogram import Bot, Dispatcher
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils import executor
-from typing import Dict
+from typing import Dict, List
 from metod import *
 import traceback
 from private import token
@@ -16,7 +16,7 @@ cb = CallbackData("prefics", "act", "p")
 dp = Dispatcher(bot)
 
 users: Dict[int, User]
-tasks: list[Task]
+tasks: List[Task]
 lessons: Dict[int, Lesson]
 users, tasks, lessons = load_all()
 

@@ -1,1 +1,1 @@
-fdf
+print(int(input())**2)
