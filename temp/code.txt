@@ -3,18 +3,27 @@ def main():
     input_file = open("input.txt", "r")
     output_file = open("output.txt", "w")
     line = input_file.readline().split(' ')
-    n, m = abs(int(line[0])), abs(int(line[1]))
-    n = n % 10
-    ans = int(n)
-    m = m - 1
-    for i in range(m):
-        ans = ans * n
-        ans = ans % 10
+    n = list(line[0])
+    print(n)
+    b = []
+    if n[len(n) - 1] == '\n':
+        n.remove('\n')
+    i = 0
+    k = 0
+    print(len(n))
+    while i < len(n):
  
-    print(ans)
+        if n[i] == '0':
+            k = k + 1
  
-    output_file.write(str(ans) + "\n")
+        else:
+            b.append(chr(k + 97))
+            k = 0
+        i = i + 1
  
+    print(b)
+ 
+    output_file.write(str(''.join([str(x) for x in b])) + "\n")
  
 if __name__ == "__main__":
     main()
